@@ -43,7 +43,7 @@
 			this.NewButton = new System.Windows.Forms.Button();
 			this.DeleteButton = new System.Windows.Forms.Button();
 			this.SaveButton = new System.Windows.Forms.Button();
-			this.HelpButton = new System.Windows.Forms.Button();
+			this.HelpWindowButton = new System.Windows.Forms.Button();
 			this.ScriptText = new System.Windows.Forms.RichTextBox();
 			this.PinCheck = new System.Windows.Forms.CheckBox();
 			this.VolumeText = new System.Windows.Forms.TextBox();
@@ -214,16 +214,16 @@
 			this.SaveButton.UseVisualStyleBackColor = true;
 			this.SaveButton.Click += new System.EventHandler(this.OnSaveButtonClick);
 			// 
-			// HelpButton
+			// HelpWindowButton
 			// 
-			this.HelpButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.HelpButton.Location = new System.Drawing.Point(16, 456);
-			this.HelpButton.Name = "HelpButton";
-			this.HelpButton.Size = new System.Drawing.Size(109, 29);
-			this.HelpButton.TabIndex = 4;
-			this.HelpButton.Text = "Help";
-			this.HelpButton.UseVisualStyleBackColor = true;
-			this.HelpButton.Click += new System.EventHandler(this.OnHelpButtonClick);
+			this.HelpWindowButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+			this.HelpWindowButton.Location = new System.Drawing.Point(16, 456);
+			this.HelpWindowButton.Name = "HelpWindowButton";
+			this.HelpWindowButton.Size = new System.Drawing.Size(109, 29);
+			this.HelpWindowButton.TabIndex = 4;
+			this.HelpWindowButton.Text = "Help";
+			this.HelpWindowButton.UseVisualStyleBackColor = true;
+			this.HelpWindowButton.Click += new System.EventHandler(this.OnHelpButtonClick);
 			// 
 			// ScriptText
 			// 
@@ -271,12 +271,11 @@
 			// 
 			this.ScriptTabList.Alignment = System.Windows.Forms.TabAlignment.Bottom;
 			this.ScriptTabList.Controls.Add(this.tabPage1);
+			this.ScriptTabList.ItemSize = new System.Drawing.Size(32, 22);
 			this.ScriptTabList.Location = new System.Drawing.Point(267, 81);
-			this.ScriptTabList.Multiline = true;
 			this.ScriptTabList.Name = "ScriptTabList";
 			this.ScriptTabList.SelectedIndex = 0;
 			this.ScriptTabList.Size = new System.Drawing.Size(548, 279);
-			this.ScriptTabList.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
 			this.ScriptTabList.TabIndex = 19;
 			this.ScriptTabList.SelectedIndexChanged += new System.EventHandler(this.OnScriptTabControlSelectedIndexChanged);
 			// 
@@ -319,7 +318,7 @@
 			// 
 			this.PlayPartButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.PlayPartButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.PlayPartButton.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.PlayPartButton.Font = new System.Drawing.Font("Arial", 10F);
 			this.PlayPartButton.Location = new System.Drawing.Point(652, 460);
 			this.PlayPartButton.Name = "PlayPartButton";
 			this.PlayPartButton.Size = new System.Drawing.Size(79, 29);
@@ -366,7 +365,7 @@
 			this.Controls.Add(this.KeyText);
 			this.Controls.Add(this.SaveButton);
 			this.Controls.Add(this.DeleteButton);
-			this.Controls.Add(this.HelpButton);
+			this.Controls.Add(this.HelpWindowButton);
 			this.Controls.Add(this.NewButton);
 			this.Controls.Add(this.PlayPartButton);
 			this.Controls.Add(this.OutputButton);
@@ -402,7 +401,7 @@
 		public System.Windows.Forms.Button NewButton;
 		public System.Windows.Forms.Button DeleteButton;
 		public System.Windows.Forms.Button SaveButton;
-		public System.Windows.Forms.Button HelpButton;
+		public System.Windows.Forms.Button HelpWindowButton;
 		public System.Windows.Forms.RichTextBox ScriptText;
 		public System.Windows.Forms.CheckBox PinCheck;
 		public System.Windows.Forms.TextBox VolumeText;

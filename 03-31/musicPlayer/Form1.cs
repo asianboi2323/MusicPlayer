@@ -30,7 +30,7 @@ namespace System
 
 			// instance init
 			Musics = new List<Music>();
-			Beepers = new Beeper[4];
+			BeeperManager = new BeeperManager();
 
 			// data init
 			if (!LoadMusics())
@@ -55,7 +55,7 @@ namespace System
 		public TabControl.TabPageCollection ScriptTabs;
 
 		public List<Music> Musics;
-		public Beeper[] Beepers;
+		public BeeperManager BeeperManager;
 
 		/// ************************* PRIVATE PROPERTIES ****************************
 
@@ -149,25 +149,10 @@ namespace System
 			return true;
 		}
 
-		public void StartBeeping(Beeper beeper)
-		{
-			try
-			{
-				beeper?.Play(RepeatCheck.Checked);
-			}
-			catch (Exception ee)
-			{
-				ms.g("Nope", $"GET OUTTA HERE WITH DAT {format.error(ee)}!!");
-			}
-		}
-
 		public void StopBeeping()
 		{
-			foreach (Beeper p in Beepers)
-			{
-				if (p != null && p.IsPlaying)
-					p.Stop();
-			}
+			if (BeeperManager.IsPlaying)
+				BeeperManager.Stop();
 		}
 
 		public void SaveMusics()
@@ -328,30 +313,24 @@ namespace System
 		{
 			StopBeeping();
 
+			Beeper[] beepers = new Beeper[ScriptTabs.Count];
 			for (int i = 0, l = ScriptTabs.Count; i < l; i++)
 			{
-				Beepers[i] = GenerateBeeper(KeyText.Text, ScriptTabs[i].ToolTipText, BpmText.Text, ScriptTabs[i].ImageKey, i + 1);
+				beepers[i] = GenerateBeeper(KeyText.Text, ScriptTabs[i].ToolTipText, BpmText.Text, ScriptTabs[i].ImageKey, i + 1);
 
-				if (!GenerateBeepStream(Beepers[i]))
+				if (!GenerateBeepStream(beepers[i]))
 					return;
 			}
 
-			for (int i = 0, l = ScriptTabs.Count; i < l; i++)
-				StartBeeping(Beepers[i]);
+			BeeperManager.Play(beepers, RepeatCheck.Checked);
 		}
 
 		protected void OnPlayPartButtonClick(object sender, EventArgs e)
 		{
-			StopBeeping();
+			Beeper[] beepers = { GenerateBeeper(KeyText.Text, ScriptText.Text, BpmText.Text, VolumeText.Text) };
 
-			Beeper beeper = GenerateBeeper(KeyText.Text, ScriptText.Text, BpmText.Text, VolumeText.Text, ScriptTabList.SelectedIndex + 1);
-
-			if (!GenerateBeepStream(beeper))
-				return;
-
-			Beepers[ScriptTabList.SelectedIndex] = beeper;
-
-			StartBeeping(beeper);
+			if (GenerateBeepStream(beepers[0]))
+				BeeperManager.Play(beepers, RepeatCheck.Checked);
 		}
 
 		protected void OnStopButtonClick(object sender, EventArgs e)
@@ -378,16 +357,17 @@ namespace System
 
 		protected void OnHelpButtonClick(object sender, EventArgs e)
 		{
-			string s = "    • Spaces separate notes. In every note, 1~7 represent Do~Ti (notes in key), 1- thru 7- represent lower notes, 1+ thru 7+ represent upper notes. A note can be followed by a '#' or a 'b' sign. (Examples: 1 3 4# 7b 2+ 5#-)";
+			string s = "    • Spaces separate notes. In every note, 1..7 represent Do..Ti (notes in key), 1- thru 7- represent lower notes, and 1+ thru 7+ represent upper notes. A note can be followed by a '#' or a 'b'. (Examples: 1 3 4# 7b 2+ 5#-)";
 			s += "\n    • For note types, 'o' means a whole note, 'd' means a half note, nothing means a quarter note, 'g' means an 8th note, and 'j' means a 16th note. A dot (.) followed by a note means a dotted note. (Examples: 1g 3. 5-d.)";
 			s += "\n    • For rests, '/' means a quarter rest, ''' (single quote) means an 8th rest, and '\"' (double quote) means a 16th rest.";
 			s += "\n    • '~' connects 2 notes. (Example: 1o~o represents a Do for 8 beats (two whole notes))";
 			s += "\n\n    • Examples (in C key):\n\t1.\tC for 1.5 beats\n\t3+g.\tupper E for .75 beats\n\t5#-\tlower G# for 1 beat\n\t7bo~d.\tBb for 7 beats\n\t/ '\trest for 1.5 beats";
-			s += "\n\n   • You can add up to 4 parts for a music. Put '@+' at the beginning of the scripts can higher a part for an octave, and '@-' can lower a part for an octave.";
+			s += "\n\n   • You can add up to 16 parts for a music. Putting '@+' at the beginning of the scripts to higher a part for an octave, and '@-' can lower a part for an octave.";
 			s += "\n   • You can add comments in your script by using this syntax:\n\t[comments...]";
 			s += "\n\n    • Hotkeys: Help(F1), Save(^S), New(^N), Play(^Enter), Stop(Esc)";
 			s += "\n\n- This cute awesome program was brought to life by Nate and Asianboii -";
 			s += "\n\n Version: 18-3-31";
+			s += "\n Updated: 20-7-3";
 			ms.g("HELP!!!", s);
 		}
 
@@ -421,10 +401,14 @@ namespace System
 			ScriptTabList.SelectedTab.ToolTipText = ScriptText.Text;
 			ScriptTabList.SelectedTab.ImageKey = VolumeText.Text;
 
-			Music music = SearchMusicByName(NameText.Text.ToString());
+			Music music = SearchMusicByName(NameText.Text);
 
 			if (music != null)
 			{
+				if (MusicList.SelectedIndex == -1)
+					if (ms.g("Override?", $"WANNA OVERRIDE MUSIC \"{music.Name}\"?", MessageBoxButtons.YesNo) == DialogResult.No)
+						return;
+
 				music.Name = NameText.Text;
 				music.Key = KeyText.Text;
 				music.Bpm = BpmText.Text;
@@ -437,6 +421,8 @@ namespace System
 					music.Scripts.Add(p.ToolTipText);
 					music.Volumes.Add(p.ImageKey);
 				}
+
+				MusicList.SelectedIndex = MusicList.Items.IndexOf(music.Name);
 			}
 			else
 			{
@@ -450,6 +436,7 @@ namespace System
 
 				Musics.Add(music);
 				MusicList.Items.Add(NameText.Text);
+				MusicList.SelectedIndex = Musics.Count - 1;
 			}
 
 			SaveMusics();
@@ -524,16 +511,12 @@ namespace System
 
 		protected void OnRepeatCheckCheckedChanged(object sender, EventArgs e)
 		{
-			foreach (Beeper p in Beepers)
-			{
-				if (p != null)
-					p.IsLooping = RepeatCheck.Checked;
-			}
+			BeeperManager.IsLooping = RepeatCheck.Checked;
 		}
 
 		protected void OnAddPartButtonClick(object sender, EventArgs e)
 		{
-			if (ScriptTabs.Count == 4)
+			if (ScriptTabs.Count == 64)
 			{
 				ms.g("No way", "TOO MANY PARTS! THAT'D BE EAR-RAPING!");
 

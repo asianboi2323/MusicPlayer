@@ -10,7 +10,7 @@ namespace System
 	public class Beep
 	{
 
-		public Beep(int duration = 500, double frequency= 0)
+		public Beep(int duration, double frequency = 0)
 		{
 			Frequency = frequency;
 			Duration = duration;

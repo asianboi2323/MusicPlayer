@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="Beep.cs" />
     <Compile Include="Beeper.cs" />
+    <Compile Include="BeeperManager.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
